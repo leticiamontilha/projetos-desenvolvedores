@@ -8,7 +8,15 @@ import { projectResult } from "../interfaces/projects.interfaces";
 
 
 export const createDeveloper = async (request: Request, response: Response): Promise<Response> => {
-    const developerData: IDeveloperRequest = request.body
+    const {name, email}: IDeveloperRequest = request.body
+
+    const developerData = {name, email}
+
+    if (!developerData.name || !developerData.email){
+        return response.status(400).json({
+            message: "As chaves name e email são obrigatórias"
+        })
+    }
 
     const queryString: string = format(
     `
@@ -21,15 +29,23 @@ export const createDeveloper = async (request: Request, response: Response): Pro
     Object.keys(developerData),
     Object.values(developerData)
     )
-
+    
     const queryResult: DeveloperResult = await client.query(queryString)
 
     return response.status(201).json(queryResult.rows[0])
 }
 
 export const createInfoDeveloper = async (request: Request, response: Response): Promise<Response> => {
-    const infoDevData: IDeveloperInfoRequest = request.body 
+    const {developerSince, preferredOS}: IDeveloperInfoRequest = request.body 
     const idDeveloper: number = +request.params.id
+
+    const infoDevData = {developerSince, preferredOS}
+
+    if (!infoDevData.developerSince || !infoDevData.preferredOS){
+        return response.status(400).json({
+            message: "As chaves developerSince e infoDevData são obrigatórias"
+        })
+    }
 
     let queryString: string = format(
         `
@@ -44,20 +60,20 @@ export const createInfoDeveloper = async (request: Request, response: Response):
     
     let queryResult: InfoResult = await client.query(queryString)
 
-    // queryString = `
-    //     UPDATE
-    //         developers
-    //     SET 
-    //         "developerInfoId" = $1
-    //     WHERE
-    //         id = $2
-    //     RETURNING *;
-    // `
+    queryString = `
+        UPDATE
+            developers
+        SET 
+            "developerInfoId" = $1
+        WHERE
+            id = $2
+        RETURNING *;
+    `
 
-    // const QueryConfig: QueryConfig = {
-    //     text: queryString,
-    //     values: [queryResult.rows[0].id, idDeveloper]
-    // } 
+    const QueryConfig: QueryConfig = {
+        text: queryString,
+        values: [queryResult.rows[0].id, idDeveloper]
+    } 
 
     // queryResult = await client.query(QueryConfig)
 

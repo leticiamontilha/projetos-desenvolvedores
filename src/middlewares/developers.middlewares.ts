@@ -3,24 +3,6 @@ import { QueryConfig } from "pg";
 import { client } from "../database";
 import { IDeveloperRequest, DeveloperResult } from "../interfaces/developers.interfaces"
 
-export const validateKeysDataDev = async (request: Request, response: Response, next: NextFunction): Promise<Response | void> => {
-    const keys: Array<string> = Object.keys(request.body)
-    const requiredKeys: Array<string> = ["name", "email"]
-
-    const containsAllDev: boolean = keys.every((key: string) => {
-        return requiredKeys.includes(key)
-    });
-
-    if(!containsAllDev){
-        return response.status(400).json({
-         message: `As chaves ${requiredKeys} são obrigatórias`
-        })
-     }
-
-     return next();
-
-}
-
 export const emailExist = async (request: Request, response: Response, next: NextFunction): Promise<Response | void> => {
     const devDataRequest: IDeveloperRequest = request.body
 
